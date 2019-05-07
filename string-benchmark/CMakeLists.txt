@@ -15,7 +15,7 @@ if( QT4_FOUND )
 endif( QT4_FOUND )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic")
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -O0 -ggdb3")
     set(CMAKE_CXX_FLAGS "-march=native")
 endif()
 
@@ -43,10 +43,22 @@ foreach( benchmark ${benchmarks} )
     set_target_properties( ${benchmark}-bstring PROPERTIES COMPILE_FLAGS -DUSE_BSTRLIB )
     target_link_libraries( ${benchmark}-bstring bstring )
 
+    include_directories( /usr/opt/TeMIP-V62L/temip/mmtoolkit/include /usr/opt/temip/tfc/include /usr/opt/temip/tfc/include/rw/config )
+    add_executable( ${benchmark}-mstring "string-${benchmark}.cpp" )
+    add_definitions( -D_RWCONFIG_m -D_RW_LINUX_ )
+    set_target_properties( ${benchmark}-mstring PROPERTIES COMPILE_FLAGS -DUSE_MSTRING )
+    target_link_libraries( ${benchmark}-mstring -L/usr/opt/temip/lib mcc_exec mcc_sys tfc_wp tfc_fmk tfc_sp tls77-m)
+
+    include_directories( /usr/opt/temip/lib /usr/opt/temip/tfc/include /usr/opt/temip/tfc/include/rw/config )
+    add_executable( ${benchmark}-rwcstring "string-${benchmark}.cpp" )
+    add_definitions( -D_RWCONFIG_m -D_RW_LINUX_ )
+    set_target_properties( ${benchmark}-rwcstring PROPERTIES COMPILE_OPTIONS "-DUSE_RWCSTRING" )
+    target_link_libraries( ${benchmark}-rwcstring -L/usr/opt/temip/lib tls77-m)
+
     ## Maxim Yegorushkin's boost::const_string
-    include_directories( third-party )
-    add_executable( ${benchmark}-yegorushkin-const-string "string-${benchmark}.cpp" )
-    set_target_properties( ${benchmark}-yegorushkin-const-string PROPERTIES COMPILE_FLAGS -DUSE_CONST_STRING )
+    #include_directories( third-party )
+    #add_executable( ${benchmark}-yegorushkin-const-string "string-${benchmark}.cpp" )
+    #set_target_properties( ${benchmark}-yegorushkin-const-string PROPERTIES COMPILE_FLAGS -DUSE_CONST_STRING )
 
     ## NullString class
     add_executable( ${benchmark}-nop "string-${benchmark}.cpp" )
@@ -67,12 +79,12 @@ foreach( benchmark ${benchmarks} )
     endif( BOEHMGC_FOUND )
 
     ## Python String Object
-    if( PYTHONLIBS_FOUND )
-        include_directories( ${PYTHON_INCLUDE_DIRS} )
-        add_executable( ${benchmark}-python-string "string-${benchmark}.cpp" )
-        set_target_properties( ${benchmark}-python-string PROPERTIES COMPILE_FLAGS -DUSE_PYTHON_STRING )
-        target_link_libraries( ${benchmark}-python-string ${PYTHON_LIBRARIES})
-    endif( PYTHONLIBS_FOUND )
+    #if( PYTHONLIBS_FOUND )
+    #    include_directories( ${PYTHON_INCLUDE_DIRS} )
+    #    add_executable( ${benchmark}-python-string "string-${benchmark}.cpp" )
+    #    set_target_properties( ${benchmark}-python-string PROPERTIES COMPILE_FLAGS -DUSE_PYTHON_STRING )
+    #    target_link_libraries( ${benchmark}-python-string ${PYTHON_LIBRARIES})
+    #endif( PYTHONLIBS_FOUND )
 
     ## Perl scalars
     if( PERLLIBS_FOUND )
