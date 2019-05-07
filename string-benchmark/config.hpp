@@ -100,6 +100,69 @@ struct NullString
 typedef NullString STR;
 #endif // USE_NOTHING
 
+#ifdef USE_MSTRING
+#include <tfc_wp_string.hxx>
+//typedef MString STR;
+//#define size Length
+//#define substr(a,b) Mid(a,a+b)
+class MYMString : public MString
+{
+public:
+inline explicit MYMString(){}
+
+inline MYMString(const char *s):MString(s)
+{}
+
+inline explicit MYMString(const MString& s):MString(s)
+{}
+
+inline size_t size()
+{return MString::Length();}
+
+inline MYMString substr(size_t b, size_t e)
+{ 
+MYMString temp(*this);
+temp.Mid(b, e+b);
+return temp; }
+
+};
+
+typedef MYMString STR;
+
+#endif
+
+#ifdef USE_RWCSTRING
+#include <rw/cstring.h>
+/*
+#define size   length
+#define substr subString
+typedef RWCString STR;
+*/
+class MYRWCString : public RWCString
+{
+public:
+inline explicit MYRWCString(){}
+
+inline MYRWCString(const char *s):RWCString(s)
+{}
+
+inline explicit MYRWCString(const RWCString& s):RWCString(s)
+{}
+
+inline MYRWCString(const RWCSubString& s):RWCString(s)
+{}
+
+inline size_t size()
+{return RWCString::length();}
+
+inline RWCSubString substr(size_t b, size_t e)
+{ return RWCString::operator()(b, e); }
+
+};
+
+typedef MYRWCString STR;
+#endif // USE_STD_STRING
+
 #include "input.hpp"
 
 #ifndef BENCHMARK_INIT
